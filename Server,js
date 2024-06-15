@@ -1,0 +1,49 @@
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+
+const app = express();
+app.use(bodyParser.json());
+app.use(cors());
+
+mongoose.connect('mongodb://localhost:27017/elizabeth-hospital', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+
+const appointmentSchema = new mongoose.Schema({
+  date: String,
+  time: String,
+  doctor: String,
+  location: String
+});
+
+const Appointment = mongoose.model('Appointment', appointmentSchema);
+
+app.post('/api/appointments', (req, res) => {
+  const appointment = new Appointment(req.body);
+  appointment.save()
+    .then(() => res.status(201).send(appointment))
+    .catch(err => res.status(400).send(err));
+});
+
+app.get('/api/appointments', (req, res) => {
+  Appointment.find()
+    .then(appointments => res.send(appointments))
+    .catch(err => res.status(400).send(err));
+});
+
+app.listen(5000, () => {
+  console.log('Server is running on port 5000');
+});
+
+
+// Add this to server.js
+app.post('/api/chatbot', (req, res) => {
+    const userMessage = req.body.message;
+    // Integrate with Dialogflow or other chatbot service
+    const botResponse = { reply: "This is a mock response." };
+    res.send(botResponse);
+  });
+  
